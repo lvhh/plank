@@ -18,25 +18,91 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AnticipateInterpolator;
 import android.view.animation.CycleInterpolator;
+import android.view.animation.OvershootInterpolator;
+import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 
 import com.sefford.circularprogressdrawable.CircularProgressDrawable;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     @Bind(R.id.contentContainer)
-    RelativeLayout mContentContainer;
+    LinearLayout mContentContainer;
     @Bind(R.id.fab)
     FloatingActionButton mFab;
 
     @Bind(R.id.progress)
     ImageView mProgress;
+
+    @Bind(R.id.style1)
+    Button mStyle1;
+
+    @Bind(R.id.style2)
+    Button mStyle2;
+
+    @Bind(R.id.style3)
+    Button mStyle3;
+
+    @Bind(R.id.style4)
+    Button mStyle4;
+
+    private static final int[] BLUE = new int[] {
+            R.color.light_blue_50,
+            R.color.light_blue_100,
+            R.color.light_blue_200,
+            R.color.light_blue_300,
+            R.color.light_blue_400,
+            R.color.light_blue_500,
+            R.color.light_blue_600,
+            R.color.light_blue_700,
+            R.color.light_blue_800,
+            R.color.light_blue_900,
+    };
+
+    private static final int[] YELLOW = new int[] {
+            R.color.light_yellow_50,
+            R.color.light_yellow_100,
+            R.color.light_yellow_200,
+            R.color.light_yellow_300,
+            R.color.light_yellow_400,
+            R.color.light_yellow_500,
+            R.color.light_yellow_600,
+            R.color.light_yellow_700,
+            R.color.light_yellow_800,
+            R.color.light_yellow_900,
+    };
+
+
+    private static final int[] RED = new int[] {
+            R.color.light_red_50,
+            R.color.light_red_100,
+            R.color.light_red_200,
+            R.color.light_red_300,
+            R.color.light_red_400,
+            R.color.light_red_500,
+            R.color.light_red_600,
+            R.color.light_red_700,
+            R.color.light_red_800,
+            R.color.light_red_900,
+    };
+
+    private static final int[][] COLOR_STYLE = new int[][] {
+            BLUE,
+            YELLOW,
+            RED
+    };
+
+
+
+
 
     private CircularProgressDrawable mCircularProgressDrawable;
 
@@ -129,9 +195,9 @@ public class MainActivity extends AppCompatActivity
     private void initCircle() {
         mCircularProgressDrawable = new CircularProgressDrawable.Builder()
                 .setRingWidth(getResources().getDimensionPixelSize(R.dimen.plank_progress_ring_size))
-                .setOutlineColor(getResources().getColor(android.R.color.darker_gray))
+                .setOutlineColor(getResources().getColor(android.R.color.holo_red_dark))
                 .setRingColor(getResources().getColor(android.R.color.holo_green_light))
-                .setCenterColor(getResources().getColor(android.R.color.holo_blue_dark))
+                .setCenterColor(getResources().getColor(getNextColor()))
                 .create();
         mProgress.setImageDrawable(mCircularProgressDrawable);
         countDownAnimator = prepareProgressAnimation();
@@ -140,14 +206,19 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    private static final long ONE_MINUTE = 1000 * 60;
+
+    private static final long TEN_SEC = 1000 * 10;
+
     private Animator prepareProgressAnimation() {
         AnimatorSet animation = new AnimatorSet();
 
         final Animator indeterminateAnimation = ObjectAnimator.ofFloat(mCircularProgressDrawable, CircularProgressDrawable.PROGRESS_PROPERTY, 0, 3600);
-        indeterminateAnimation.setDuration(3600);
+        indeterminateAnimation.setDuration(TEN_SEC);
 
-        Animator innerCircleAnimation = ObjectAnimator.ofFloat(mCircularProgressDrawable, CircularProgressDrawable.CIRCLE_SCALE_PROPERTY, 0F, 0.75F);
-        innerCircleAnimation.setDuration(3600);
+        Animator innerCircleAnimation = ObjectAnimator.ofFloat(mCircularProgressDrawable, CircularProgressDrawable.CIRCLE_SCALE_PROPERTY, 0F, 1F);
+        innerCircleAnimation.setDuration(TEN_SEC);
+
         innerCircleAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
@@ -159,9 +230,14 @@ public class MainActivity extends AppCompatActivity
                 indeterminateAnimation.end();
                 mCircularProgressDrawable.setIndeterminate(false);
                 mCircularProgressDrawable.setProgress(0);
+//
+//                mCircularProgressDrawable.setCenterColor(getNextColor());
+//                countDownAnimator = prepareProgressAnimation();
+//                countDownAnimator.start();
+                initCircle();
             }
         });
-        animation.playTogether(innerCircleAnimation, indeterminateAnimation);
+        animation.playTogether(innerCircleAnimation);
         return animation;
     }
 
@@ -202,6 +278,70 @@ public class MainActivity extends AppCompatActivity
         return animation;
     }
 
+    private Animator prepareAnimation3() {
+        AnimatorSet animation = new AnimatorSet();
+
+        ObjectAnimator progressAnimation = ObjectAnimator.ofFloat(mCircularProgressDrawable, CircularProgressDrawable.PROGRESS_PROPERTY, 0.75F, 0F);
+        progressAnimation.setDuration(1200);
+        progressAnimation.setInterpolator(new AnticipateInterpolator());
+
+        Animator innerCircleAnimation = ObjectAnimator.ofFloat(mCircularProgressDrawable, CircularProgressDrawable.CIRCLE_SCALE_PROPERTY, 0.75F, 0F);
+        innerCircleAnimation.setDuration(1200);
+        innerCircleAnimation.setInterpolator(new AnticipateInterpolator());
+
+        ObjectAnimator invertedProgress = ObjectAnimator.ofFloat(mCircularProgressDrawable, CircularProgressDrawable.PROGRESS_PROPERTY, 0F, 0.75F);
+        invertedProgress.setDuration(1200);
+        invertedProgress.setStartDelay(3200);
+        invertedProgress.setInterpolator(new OvershootInterpolator());
+
+        Animator invertedCircle = ObjectAnimator.ofFloat(mCircularProgressDrawable, CircularProgressDrawable.CIRCLE_SCALE_PROPERTY, 0F, 0.75F);
+        invertedCircle.setDuration(1200);
+        invertedCircle.setStartDelay(3200);
+        invertedCircle.setInterpolator(new OvershootInterpolator());
+
+        animation.playTogether(progressAnimation, innerCircleAnimation, invertedProgress, invertedCircle);
+
+        return animation;
+    }
+
 
     private Animator countDownAnimator;
+
+    @OnClick(R.id.style1)
+    void changeStyle1() {
+        countDownAnimator = prepareProgressAnimation();
+        countDownAnimator.start();
+    }
+
+    @OnClick(R.id.style2)
+    void changeStyle2() {
+        countDownAnimator = prepareProgressAnimation1();
+        countDownAnimator.start();
+    }
+
+    @OnClick(R.id.style3)
+    void changeStyle3() {
+        countDownAnimator = prepareProgressAnimation2();
+        countDownAnimator.start();
+    }
+
+    @OnClick(R.id.style4)
+    void changeStyle4() {
+        countDownAnimator = prepareAnimation3();
+        countDownAnimator.start();
+    }
+
+
+    //目前一共30种颜色循环展示
+    private int currentColorIndex = 0;
+
+    private int getNextColor() {
+        if(currentColorIndex >= 30)
+            currentColorIndex = 0;
+        int color = COLOR_STYLE[currentColorIndex/10][currentColorIndex%10];
+        currentColorIndex++;
+        return color;
+    }
+
+
 }
