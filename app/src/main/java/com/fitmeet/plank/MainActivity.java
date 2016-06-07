@@ -6,6 +6,8 @@ import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -24,6 +26,7 @@ import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.sefford.circularprogressdrawable.CircularProgressDrawable;
 
@@ -53,6 +56,15 @@ public class MainActivity extends AppCompatActivity
 
     @Bind(R.id.style4)
     Button mStyle4;
+
+    @Bind(R.id.actionControl)
+    Button mActionControl;
+
+    @Bind(R.id.min)
+    TextView min;
+
+    @Bind(R.id.sec)
+    TextView sec;
 
     private static final int[] BLUE = new int[] {
             R.color.light_blue_50,
@@ -200,10 +212,14 @@ public class MainActivity extends AppCompatActivity
                 .setCenterColor(getResources().getColor(getNextColor()))
                 .create();
         mProgress.setImageDrawable(mCircularProgressDrawable);
+
+
+
+    }
+
+    private void startAnimation() {
         countDownAnimator = prepareProgressAnimation();
         countDownAnimator.start();
-
-
     }
 
     private static final long ONE_MINUTE = 1000 * 60;
@@ -218,6 +234,7 @@ public class MainActivity extends AppCompatActivity
 
         Animator innerCircleAnimation = ObjectAnimator.ofFloat(mCircularProgressDrawable, CircularProgressDrawable.CIRCLE_SCALE_PROPERTY, 0F, 1F);
         innerCircleAnimation.setDuration(TEN_SEC);
+        innerCircleAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
 
         innerCircleAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -234,7 +251,11 @@ public class MainActivity extends AppCompatActivity
 //                mCircularProgressDrawable.setCenterColor(getNextColor());
 //                countDownAnimator = prepareProgressAnimation();
 //                countDownAnimator.start();
-                initCircle();
+                if(isCounting) {
+                    initCircle();
+                    startAnimation();
+                }
+
             }
         });
         animation.playTogether(innerCircleAnimation);
@@ -343,5 +364,60 @@ public class MainActivity extends AppCompatActivity
         return color;
     }
 
+    private boolean isCounting = false;
+    @OnClick(R.id.actionControl)
+    void control() {
+        if(isCounting) {
+            mHandler.removeMessages(100);
+            isCounting = false;
+            stopAnimation();
+            mActionControl.setText("start");
+            clearTimeStatus();
 
+        } else {
+            secCount = 0;
+            currentColorIndex = 0;
+            startAnimation();
+            isCounting = true;
+            mActionControl.setText("stop");
+            mHandler.sendEmptyMessageDelayed(100, 1000);
+        }
+    }
+
+    private void stopAnimation() {
+        countDownAnimator.cancel();
+    }
+
+    private void clearTimeStatus() {
+        min.setText("00");
+        sec.setText("00");
+    }
+
+    private int secCount = 0;
+
+    private static final int MIN_INDEX = 60;
+
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(isCounting) {
+                secCount++;
+                int secDisplay = secCount % 60;
+                if(secDisplay < 10)
+                    sec.setText("0"+secDisplay);
+                else
+                    sec.setText(String.valueOf(secDisplay));
+
+                int minDisplay = secCount / 60;
+                if(minDisplay < 10)
+                    min.setText("0" + minDisplay);
+                else
+                    min.setText(String.valueOf(minDisplay));
+
+                mHandler.sendEmptyMessageDelayed(100, 1000);
+            }
+
+        }
+    };
 }
