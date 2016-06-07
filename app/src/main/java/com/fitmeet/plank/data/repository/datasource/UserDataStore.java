@@ -15,7 +15,8 @@
  */
 package com.fitmeet.plank.data.repository.datasource;
 
-import com.fernandocejas.android10.sample.data.entity.UserEntity;
+
+import com.fitmeet.plank.data.entity.UserEntity;
 
 import java.util.List;
 
