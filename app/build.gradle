@@ -45,4 +45,5 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.5.0'
     compile 'com.google.code.gson:gson:2.2.4'
     compile 'com.android.support:support-annotations:21.0.3'
+    compile 'com.squareup.retrofit2:retrofit-mock:2.0.2'
 }

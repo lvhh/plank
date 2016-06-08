@@ -27,7 +27,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.fitmeet.plank.presentation.view.activity.BaseActivity;
+import com.fitmeet.plank.test.presentation.view.activity.BaseActivity;
 import com.sefford.circularprogressdrawable.CircularProgressDrawable;
 
 import butterknife.Bind;
