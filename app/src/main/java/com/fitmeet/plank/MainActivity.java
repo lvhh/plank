@@ -112,10 +112,6 @@ public class MainActivity extends BaseActivity
             RED
     };
 
-
-
-
-
     private CircularProgressDrawable mCircularProgressDrawable;
 
 
@@ -420,4 +416,6 @@ public class MainActivity extends BaseActivity
 
         }
     };
+
+
 }

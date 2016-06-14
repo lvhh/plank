@@ -8,4 +8,8 @@
     <string name="exception_message_generic">抛出异常</string>
     <string name="exception_message_no_connection">网络链接异常</string>
     <string name="exception_message_user_not_found">没有找到这个用户</string>
+    <string name="title_activity_step_pedometer">StepPedometerActivity</string>
+    <string name="step_counter">android.hardware.sensor.stepcounter</string>
+    <string name="step_detector">android.hardware.sensor.stepdetector</string>
+
 </resources>
